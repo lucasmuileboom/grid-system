@@ -7,6 +7,11 @@ public class Node : MonoBehaviour
     [SerializeField] private bool _walkable;
     [SerializeField] private bool _buildable;
 
+    public int _nodePositionInGridY;
+    public int _nodePositionInGridX;
+    public float _nodePositionX;
+    public float _nodePositionY;
+
     public int _gCost;
     public int _hCost;
     public Node _parent;

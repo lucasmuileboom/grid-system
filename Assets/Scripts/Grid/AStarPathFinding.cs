@@ -10,7 +10,7 @@ public class AStarPathFinding : MonoBehaviour
     {
         _GridSystem = GetComponent<GridSystem>();
     }
-    public void FindPath(Vector3 startPosition, Vector3 endPosition)
+    public List<Node> FindPath(Vector3 startPosition, Vector3 endPosition)
     {
         Node startNode = _GridSystem.GetNodeFromWorldPosition(startPosition);
         Node endNode = _GridSystem.GetNodeFromWorldPosition(endPosition);
@@ -36,12 +36,9 @@ public class AStarPathFinding : MonoBehaviour
 
             if (currentNode == endNode)
             {
-                retracePath(startNode, endNode);
-                return;
+                return retracePath(startNode, endNode); ;
             }
-
-            Vector2 currentNodePositionInGrid = new Vector2(_GridSystem.GetXCount(currentNode.transform.position.x), _GridSystem.GetYCount(currentNode.transform.position.y));
-            List<Node> neighbours = _GridSystem.GetNodeNeibers(currentNodePositionInGrid, 3, 3);
+            List<Node> neighbours = _GridSystem.GetNodeNeibers(currentNode, 3, 3);
             foreach (Node neighbour in neighbours)
             {
                 if(!neighbour._Walkable || closedSet.Contains(neighbour) || neighbour == currentNode)
@@ -64,7 +61,7 @@ public class AStarPathFinding : MonoBehaviour
 
         }
     }
-    private void retracePath(Node startNode, Node endNode)
+    private List<Node> retracePath(Node startNode, Node endNode)
     {
         List<Node> path = new List<Node>();
         Node currentNode = endNode;
@@ -74,12 +71,13 @@ public class AStarPathFinding : MonoBehaviour
             path.Add(currentNode);
             currentNode = currentNode._parent;
         }
-        path.Reverse();//moet nog iets met het pad doen
+        path.Reverse();
+        return path;
     }
     private int GetDistanceBetweenNodes(Node Node1,Node Node2)
     {
-        int DistanceX = Mathf.Abs(_GridSystem.GetXCount(Node1.transform.position.x) - _GridSystem.GetXCount(Node2.transform.position.x));
-        int DistanceY = Mathf.Abs(_GridSystem.GetYCount(Node1.transform.position.y) - _GridSystem.GetYCount(Node2.transform.position.y));
+        int DistanceX = Mathf.Abs(Node1._nodePositionInGridX - Node2._nodePositionInGridX);
+        int DistanceY = Mathf.Abs(Node1._nodePositionInGridY - Node2._nodePositionInGridY);
 
         if(DistanceX > DistanceY)
         {

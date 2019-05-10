@@ -9,7 +9,7 @@ public class PlaceBuildings : MonoBehaviour
     [SerializeField] private GameObject[] _buildings;
 
     private GameObject _spawnedBuilding;
-    private Vector2 _previousNodePosition;
+    private Node _previousNode;
     private int _buildingHeightInNodes;
     private int _buildingWidthInNodes;
     private bool _previousCanBuild = false;
@@ -54,19 +54,20 @@ public class PlaceBuildings : MonoBehaviour
     }
     private void BuildingEnabled(int buildingSizeX, int buildingSizeY)
     {
-        Vector3 _nodePositionWordSpace = _gridSystem.NearestPointInWorldSpace(_inputManager.MousePosition());
-        Vector2 _nodePositionInGrid = new Vector2(_gridSystem.GetXCount(_nodePositionWordSpace.x), _gridSystem.GetYCount(_nodePositionWordSpace.y));
+        Node currentnode = _gridSystem.GetNodeFromWorldPosition(_inputManager.MousePosition()); ;
+        Vector3 _nodePositionWordSpace = new Vector3(currentnode._nodePositionX, currentnode._nodePositionY,-1);
+        Vector2 _nodePositionInGrid = new Vector2(currentnode._nodePositionInGridX, currentnode._nodePositionInGridX);
         bool _canbuild = false;
 
         _spawnedBuilding.transform.position = _nodePositionWordSpace;
 
-        if (_previousCanBuild && _previousNodePosition == _nodePositionInGrid)
+        if (_previousCanBuild && _previousNode == currentnode)
         {
             CanPlaceBuilding();
         }
         else
         {
-            Node[] _nodeNeibers = _gridSystem.GetNodeNeibers(_nodePositionInGrid, buildingSizeX, buildingSizeY).ToArray();
+            Node[] _nodeNeibers = _gridSystem.GetNodeNeibers(currentnode, buildingSizeX, buildingSizeY).ToArray();
             _canbuild = CanBuildHere(_nodeNeibers, buildingSizeX, buildingSizeY);
             if (_canbuild)
             {
@@ -81,7 +82,7 @@ public class PlaceBuildings : MonoBehaviour
                 CantPlaceBuilding();
             }
         }
-        _previousNodePosition = _nodePositionInGrid;
+        _previousNode = currentnode;
         _previousCanBuild = _canbuild;
     }
     public void StartBuilding(int buildingNumber)

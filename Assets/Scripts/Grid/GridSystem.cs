@@ -7,8 +7,8 @@ public class GridSystem : MonoBehaviour
     [SerializeField] private GameObject _nodeprefab;
     [SerializeField] private int _gridRows;
     [SerializeField] private int _gridColumns;
-    [SerializeField] private float _nodeHeight;
-    [SerializeField] private float _nodeWidth;
+    [SerializeField] private float _nodeHeight;//miss in node opslaan?
+    [SerializeField] private float _nodeWidth;//miss in node opslaan?
     [SerializeField] private float _NodeGap;
     private Node[,] _grid;
 
@@ -30,28 +30,29 @@ public class GridSystem : MonoBehaviour
                 _spawnedObject.transform.parent = transform;
                 _spawnedObject.transform.localScale = new Vector3(_nodeWidth, _nodeHeight, 1);
                 _grid[i, j] = _spawnedObject.GetComponent<Node>();
+
+                _grid[i, j]._nodePositionX = _spawnPosition.x;
+                _grid[i, j]._nodePositionY = _spawnPosition.y;
+                _grid[i, j]._nodePositionInGridX = i;
+                _grid[i, j]._nodePositionInGridY = j;
             }
         }
     }
-    public int GetXCount(float position)
+    public int GetXInGridFromWorldPosition(float position)
     {
         position -= transform.position.x;
         return Mathf.RoundToInt(position / (_nodeWidth + _NodeGap));
     }
-    public int GetYCount(float position)
+    public int GetYInGridFromWorldPosition(float position)
     {
         position -= transform.position.y;
         return Mathf.RoundToInt(position / (_nodeHeight + _NodeGap));
     }
-    public Vector3 NearestPointInWorldSpace(Vector3 position)
+    public Node GetNodeFromWorldPosition(Vector3 worldPosition) 
     {
-        Vector3 _nodePosition;
-        _nodePosition.x = GetXCount(position.x) * (_nodeWidth + _NodeGap);
-        _nodePosition.y = GetYCount(position.y) * (_nodeHeight + _NodeGap);
-        _nodePosition.z = -1;
-        return _nodePosition + transform.position;
+        return _grid[GetXInGridFromWorldPosition(worldPosition.x), GetYInGridFromWorldPosition(worldPosition.y)];
     }
-    public List<Node> GetNodeNeibers(Vector2 nodePosition,int amoutOfNeibersX, int amoutOfNeibersY)
+    public List<Node> GetNodeNeibers(Node currentnode,int amoutOfNeibersX, int amoutOfNeibersY)
     {
         List<Node> result = new List<Node>();
 
@@ -59,17 +60,12 @@ public class GridSystem : MonoBehaviour
         {
             for (int j = (int)-Mathf.Floor(amoutOfNeibersY / 2); j < -Mathf.Floor(amoutOfNeibersY / 2) + amoutOfNeibersY; j++)
             {
-                if (nodePosition.x + i >= 0 && nodePosition.x + i < _grid.GetLength(0) && nodePosition.y + j >= 0 && nodePosition.y + j < _grid.GetLength(1))
+                if (currentnode._nodePositionInGridX + i >= 0 && currentnode._nodePositionInGridX + i < _grid.GetLength(0) && currentnode._nodePositionInGridY + j >= 0 && currentnode._nodePositionInGridY + j < _grid.GetLength(1))
                 {
-                    result.Add(_grid[(int)nodePosition.x + i, (int)nodePosition.y + j]);
+                    result.Add(_grid[(int)currentnode._nodePositionInGridX + i, (int)currentnode._nodePositionInGridY + j]);
                 }
             }
         }
         return result;
-    }
-
-    public Node GetNodeFromWorldPosition(Vector3 worldPosition)
-    {
-        return _grid[GetXCount(worldPosition.x), GetYCount(worldPosition.y)];
     }
 }
