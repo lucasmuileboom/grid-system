@@ -60,6 +60,7 @@ public class AStarPathFinding : MonoBehaviour
             }
 
         }
+        return null;
     }
     private List<Node> retracePath(Node startNode, Node endNode)
     {
